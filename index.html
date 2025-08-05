@@ -17,6 +17,8 @@
     border-radius:var(--radius); box-shadow:0 4px 25px #a0aec03a, 0 1.5px 20px #dbeafead;
     padding:37px 20px 35px 20px;
     border:1.3px solid #e5eaf3;
+    position: relative;
+    overflow: visible;
   }
   .firmhdr { text-align:center; font-family:'Poppins',sans-serif; font-size:32px; font-weight:700; color:#1e3362; letter-spacing:.7px; }
   .firminfo { text-align:center; font-size:18px; color:#47506e; margin-bottom:10px; line-height:1.4; }
@@ -27,18 +29,19 @@
     transition:.13s;
   }
   input:focus, textarea:focus, select:focus { border-color:#4683e6; background:#e7f1fd; }
-  input[type="number"] { width:92px; text-align:right;}
+  input[type="number"] { width:90px; text-align:right;}
+  .smallnum { width:88px !important; }
   .scroll-table-wrapper {
     overflow-x:auto; width:100%;
     margin-bottom: 19px;
     background: #f5fafd; border-radius:8px;
   }
   table {
-    min-width:1260px; width:100%; border-collapse: separate; border-spacing:0;
+    min-width:1160px; width:100%; border-collapse: separate; border-spacing:0;
     border-radius: var(--radius); background: #f8fafd;
     box-shadow:0 1.5px 10px #c5d7f142;
   }
-  th, td { border:1px solid #bac8da; padding:8px 10px; }
+  th, td { border:1px solid #bac8da; padding:7px 4px; }
   th {
     background: linear-gradient(90deg,#e3ebfa 60%, #e8f1fb 100%); font-weight:700; color:#293855;
     border-top:2px solid #24384177;
@@ -50,6 +53,7 @@
   .actions-bar {
     display: flex; flex-wrap:wrap; gap:18px; justify-content: flex-end;
     margin-bottom:13px; margin-top:-18px; background: none;
+    align-items:center;
   }
   .actbtn {
     font-size:16px; font-family:'Inter',sans-serif; padding:7px 20px; font-weight:600; color:#fff;
@@ -62,26 +66,27 @@
   .act-cancel  { background: #d7454f;}
   .act-delete  { background: #6c6c6c;}
   .linebtn {
-    padding: 3px 13px;
-    font-size:22px; font-weight:700; color:#346; background:#e9efff; border-radius:5px; border:none; cursor:pointer; margin:0 2px;
+    padding:2px 11px;
+    font-size:20px; font-weight:700; color:#346; background:#e9efff; border-radius:5px; border:none; cursor:pointer; margin:0 2px;
   }
   .linebtn:active { color:#0f4a8a;}
   .footerNote { font-size:14px; color:#666; text-align:center; padding-bottom:7px;}
   .gst-row {margin-top:2px; margin-bottom:18px; display:flex; gap:23px; justify-content:left;}
   .cancelled-invoice {
-    position: fixed; left:0; right:0; top:44%; text-align:center; font-size:66px; color:#ff3747;
-    font-weight:800; opacity:0.13; transform:rotate(-10deg); z-index:99; pointer-events:none;
+    position: absolute; left:0; right:0; top:190px; text-align:center; font-size:70px;
+    color:#cc2d2d; font-weight:900; opacity:0.13; transform:rotate(-14deg); z-index:999; pointer-events:none; user-select:none;
+    width:100%; pointer-events:none;
   }
   .tcboxlbl {font-weight:600; margin-left:18px;font-size:18px;}
   .tcboxlbl input[type=checkbox] { transform: scale(1.17);}
   #onlySCGSTToggle,#tcsToggle { accent-color:#3156c1; vertical-align:middle;}
   th:first-child, td:first-child { border-left-width:2px; border-radius:8px 0 0 8px; }
   th:last-child, td:last-child { border-right-width:2px; border-radius:0 8px 8px 0; }
-  tr .row-actions { min-width:66px; }
-  th:nth-child(10), td:nth-child(10) { min-width:90px !important; }
+  tr .row-actions { min-width:56px;}
+  th:nth-child(10), td:nth-child(10) { min-width:72px !important; }
   @media (max-width:1200px) {
     .scroll-table-wrapper {overflow-x:auto;}
-    table {min-width:1200px;}
+    table {min-width:920px;}
   }
   @media (max-width:900px) {
     .invoice-card { padding:7px 1vw;}
@@ -104,6 +109,11 @@
     <button class="actbtn act-amend"  onclick="alert('Amend via DB soon')">Amend</button>
     <button class="actbtn act-cancel" onclick="cancelInvoice()">Cancel</button>
     <button class="actbtn act-delete" onclick="alert('Delete via DB soon')">Delete</button>
+    <span id="retrievePrev" style="margin-left:18px;">
+      <button type="button"
+        style="padding:6px 16px; background:#4062e8;color:#fff;border-radius:5px;font-weight:500;cursor:pointer;"
+        onclick="showPreviousInvoice()">Show Previous Invoice</button>
+    </span>
   </div>
   <div class="firmhdr">Dream Destination</div>
   <div class="firminfo">
@@ -114,14 +124,9 @@
   <div class="headerlabel">GST Tax Invoice</div>
 
   <div style="display:flex; flex-wrap:wrap; gap:16px; align-items:center; margin-bottom:14px;">
-    <label><b>Invoice No</b> <input type="text" id="invoiceNumber" readonly style="min-width:120px"></label>
-    <label><b>Date</b> <input type="date" id="invoiceDate" style="min-width:140px"></label>
-    <label><b>Tour ID</b> <input type="text" id="tourId" placeholder="(prefilled or from Payment)" style="min-width:108px"></label>
-    <span id="retrievePrev" style="margin-left:auto;">
-      <button type="button"
-        style="padding:6px 18px; background:#4062e8;color:#fff;border-radius:5px;font-weight:500;cursor:pointer;"
-        onclick="showPreviousInvoice()">Show Previous Invoice</button>
-    </span>
+    <label><b>Invoice No</b> <input type="text" id="invoiceNumber" readonly class="smallnum"></label>
+    <label><b>Date</b> <input type="date" id="invoiceDate" style="min-width:120px"></label>
+    <label><b>Tour ID</b> <input type="text" id="tourId" placeholder="(prefilled or from Payment)" class="smallnum"></label>
   </div>
 
   <div style="margin-bottom:8px;">
@@ -169,28 +174,28 @@
   </div>
 
   <div class="gst-row">
-    <label><b>CGST%</b> <input type="number" id="defCgst" value="2.5" step="0.01"></label>
-    <label><b>SGST%</b> <input type="number" id="defSgst" value="2.5" step="0.01"></label>
-    <label><b>IGST%</b> <input type="number" id="defIgst" value="0" step="0.01"></label>
+    <label><b>CGST%</b> <input type="number" id="defCgst" value="2.5" step="0.01" class="smallnum"></label>
+    <label><b>SGST%</b> <input type="number" id="defSgst" value="2.5" step="0.01" class="smallnum"></label>
+    <label><b>IGST%</b> <input type="number" id="defIgst" value="0" step="0.01" class="smallnum"></label>
   </div>
 
   <table>
     <tr><td class="right no-border bold">Cost of Tour (A):</td>
-        <td><input type="text" id="tourSubtotal" class="right bold" readonly></td></tr>
+        <td><input type="text" id="tourSubtotal" class="right bold smallnum" readonly></td></tr>
     <tr><td class="right no-border bold">Service Charges (B):</td>
-        <td><input type="text" id="serviceSubtotal" class="right bold" readonly></td></tr>
+        <td><input type="text" id="serviceSubtotal" class="right bold smallnum" readonly></td></tr>
     <tr><td class="right no-border">CGST (as per GST logic):</td>
-        <td><input type="text" id="totalCGST" class="right" readonly></td></tr>
+        <td><input type="text" id="totalCGST" class="right smallnum" readonly></td></tr>
     <tr><td class="right no-border">SGST (as per GST logic):</td>
-        <td><input type="text" id="totalSGST" class="right" readonly></td></tr>
+        <td><input type="text" id="totalSGST" class="right smallnum" readonly></td></tr>
     <tr><td class="right no-border">IGST (as per GST logic):</td>
-        <td><input type="text" id="totalIGST" class="right" readonly></td></tr>
+        <td><input type="text" id="totalIGST" class="right smallnum" readonly></td></tr>
     <tr><td class="right bold no-border">Grand Total (A+B+GST):</td>
-        <td><input type="text" id="grandTotal" class="right bold" readonly></td></tr>
+        <td><input type="text" id="grandTotal" class="right bold smallnum" readonly></td></tr>
     <tr id="tcsLine" style="display:none;"><td class="right bold no-border" style="color:#045;">TCS @ 5% of Grand Total:</td>
-        <td><input type="text" id="tcs5" class="right bold" readonly style="color:#046;"></td></tr>
+        <td><input type="text" id="tcs5" class="right bold smallnum" readonly style="color:#046;"></td></tr>
     <tr id="tcsTotalLine" style="display:none;"><td class="right bold no-border" style="color:#045;">Total with TCS:</td>
-        <td><input type="text" id="totalWithTcs" class="right bold" readonly style="color:#046;"></td></tr>
+        <td><input type="text" id="totalWithTcs" class="right bold smallnum" readonly style="color:#046;"></td></tr>
   </table>
 
   <div style="margin-bottom:8px;">
@@ -236,7 +241,7 @@
   </template>
 </div>
 <script>
-// Invoice/serial logic
+// ============ Invoice/serial logic =============
 function currentFY() { let dt=new Date(),m=dt.getMonth()+1,yr=dt.getFullYear(); return (m>=4)?(yr.toString().slice(-2)+'-'+(yr+1).toString().slice(-2)):( (yr-1).toString().slice(-2)+'-'+yr.toString().slice(-2) ); }
 function getLastSerial() { return +(localStorage.getItem('dd_invoice_serial_'+currentFY())||0);}
 function nextSerial() { let last=getLastSerial()+1; return {serial:"DD/"+currentFY()+"/"+String(last).padStart(4,'0'), idx:last}; }
@@ -252,12 +257,19 @@ function resetFields() {
   document.getElementById('reverseCharge').checked=false; document.getElementById('signatureAttested').checked=false;
   let tb=document.getElementById('itemsTable').getElementsByTagName('tbody')[0]; tb.innerHTML='';
   addRow();
-  document.getElementById('invoiceDate').valueAsDate = new Date(); document.getElementById('cancelWatermark').style.display='none';
+  document.getElementById('invoiceDate').valueAsDate = new Date();
+  hideCancelWatermark();
   setEditability && setEditability(true);
 }
 function newInvoice() { setInvoiceNumber && setInvoiceNumber(); resetFields && resetFields(); updateTotals(); setTimeout(expandDescAllRows, 200);}
-function cancelInvoice() {document.getElementById('cancelWatermark').style.display='';setEditability && setEditability(false);}
-function loadPreviousInvoice(){ alert('Previous Invoice will load when DB integrated');}
+function cancelInvoice() {
+  document.getElementById('cancelWatermark').style.display = '';
+  setEditability && setEditability(false);
+}
+function hideCancelWatermark() {
+  document.getElementById('cancelWatermark').style.display = 'none';
+}
+function loadPreviousInvoice(){ hideCancelWatermark(); alert('Previous Invoice will load when DB integrated');}
 function setEditability(isEditable) {
   let flds=document.querySelectorAll('#invoiceForm input, #invoiceForm textarea, #recipientName, #recipientAddress, #recipientGSTIN, #placeOfSupply, #deliveryAddress, #defCgst, #defSgst, #defIgst');
   for(let f of flds){if(f.id==='invoiceNumber'||f.id==='invoiceDate') continue;f.readOnly = !isEditable;f.disabled=!isEditable;}
@@ -272,6 +284,7 @@ function showHideTcsLines() {
   document.getElementById('tcsLine').style.display = show ? '' : 'none';
   document.getElementById('tcsTotalLine').style.display = show ? '' : 'none';
 }
+// ============ GST Logic =============
 function updateTotals() {
   let tb=document.getElementById('itemsTable').getElementsByTagName('tbody')[0],
       costOfTour=0, serviceCharges=0, base=0, cgst=0, sgst=0, igst=0;
@@ -280,6 +293,9 @@ function updateTotals() {
     serviceCharges += Number(tr.getAttribute('data-servicecharge'))||0;
   }
   if(document.getElementById('onlySCGSTToggle').checked){
+    document.getElementById('defCgst').value = 9.00;
+    document.getElementById('defSgst').value = 9.00;
+    document.getElementById('defIgst').value = 0;
     base=serviceCharges; cgst=base*0.09; sgst=base*0.09; igst=0;
   } else{
     base=costOfTour+serviceCharges;
@@ -304,6 +320,9 @@ function updateTotals() {
   }
   setRatesToAllRows && setRatesToAllRows();
 }
+document.getElementById('onlySCGSTToggle').addEventListener('change', function() {
+  updateTotals();
+});
 function expandDescAllRows() {
   let rows = document.querySelectorAll('#itemsTable tbody tr');
   for (let row of rows) {
@@ -323,15 +342,15 @@ function addRow(service, nIdx) {
       <button type="button" class="desc-expander" onclick="expandDesc(this)">Expand/Edit</button>
       <div class="descDetail"></div>
     </td>
-    <td><input type="text" name="hsn" value="${service?service.hsn||'9985':''}"></td>
-    <td><input type="number" name="qty" value="${service?service.qty||1:1}" min="1" style="width:36px;">
-        <input type="text" name="uqc" value="${service?service.uqc||'Unit':'Unit'}" style="width:38px;"></td>
-    <td><input type="number" name="rate" value="${service?service.rate||0:0}" min="0" class="right"></td>
-    <td><input type="number" name="disc" value="${service?service.disc||0:0}" class="right" min="0"></td>
-    <td><input type="number" name="tvalue" readonly value="${service?service.tvalue||'0.00':'0.00'}" class="right"></td>
-    <td><input type="number" name="cgst" value="${service?service.cgst||document.getElementById('defCgst').value:document.getElementById('defCgst').value}" class="right"></td>
-    <td><input type="number" name="sgst" value="${service?service.sgst||document.getElementById('defSgst').value:document.getElementById('defSgst').value}" class="right"></td>
-    <td><input type="number" name="igst" value="${service?service.igst||document.getElementById('defIgst').value:document.getElementById('defIgst').value}" class="right"></td>
+    <td><input type="text" name="hsn" value="${service?service.hsn||'9985':''}" class="smallnum"></td>
+    <td><input type="number" name="qty" value="${service?service.qty||1:1}" min="1" class="smallnum">
+        <input type="text" name="uqc" value="${service?service.uqc||'Unit':'Unit'}" class="smallnum"></td>
+    <td><input type="number" name="rate" value="${service?service.rate||0:0}" min="0" class="right smallnum"></td>
+    <td><input type="number" name="disc" value="${service?service.disc||0:0}" class="right smallnum" min="0"></td>
+    <td><input type="number" name="tvalue" readonly value="${service?service.tvalue||'0.00':'0.00'}" class="right smallnum"></td>
+    <td><input type="number" name="cgst" value="${service?service.cgst||document.getElementById('defCgst').value:document.getElementById('defCgst').value}" class="right smallnum"></td>
+    <td><input type="number" name="sgst" value="${service?service.sgst||document.getElementById('defSgst').value:document.getElementById('defSgst').value}" class="right smallnum"></td>
+    <td><input type="number" name="igst" value="${service?service.igst||document.getElementById('defIgst').value:document.getElementById('defIgst').value}" class="right smallnum"></td>
     <td class="row-actions center">
       <button type="button" class="linebtn" title="+ Row" onclick="addRow()">&plus;</button>
       <button type="button" class="linebtn" title="- Row" onclick="deleteRow(this)">&minus;</button>
