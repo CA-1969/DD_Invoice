@@ -63,7 +63,7 @@
   }
   .tcboxlbl {font-weight:600; margin-left:18px;font-size:18px;}
   .tcboxlbl input[type=checkbox] { transform: scale(1.17);}
-  #onlySCGSTToggle { accent-color:#3156c1; vertical-align:middle;}
+  #onlySCGSTToggle,#tcsToggle { accent-color:#3156c1; vertical-align:middle;}
   th:first-child, td:first-child { border-left-width:2px; border-radius:8px 0 0 8px; }
   th:last-child, td:last-child { border-right-width:2px; border-radius:0 8px 8px 0; }
   th:nth-child(10), td:nth-child(10) { min-width:90px !important; }
@@ -85,7 +85,7 @@
 <body>
 <div class="invoice-card">
   <div class="actions-bar">
-    <button class="actbtn act-add"    onclick="newInvoice()">Add</button>
+    <button class="actbtn act-add"    onclick="addRow()">Add</button>
     <button class="actbtn act-prev"   onclick="loadPreviousInvoice()">Previous</button>
     <button class="actbtn act-amend"  onclick="alert('Amend via DB soon')">Amend</button>
     <button class="actbtn act-cancel" onclick="cancelInvoice()">Cancel</button>
@@ -146,6 +146,10 @@
       (Tick for GST on only Service Charges, untick to charge on total)
     </span>
   </div>
+  <div style="margin-bottom:8px;">
+    <label class="tcboxlbl"><input type="checkbox" id="tcsToggle"> Apply TCS @ 5%</label>
+    <span style="color:#6c7891; font-size:14px; margin-left:10px;">(When checked, TCS will be added below)</span>
+  </div>
 
   <div class="gst-row">
     <label><b>CGST%</b> <input type="number" id="defCgst" value="2.5" step="0.01"></label>
@@ -166,9 +170,9 @@
         <td><input type="text" id="totalIGST" class="right" readonly></td></tr>
     <tr><td class="right bold no-border">Grand Total (A+B+GST):</td>
         <td><input type="text" id="grandTotal" class="right bold" readonly></td></tr>
-    <tr><td class="right bold no-border" style="color:#045;">TCS @ 5% of Grand Total:</td>
+    <tr id="tcsLine" style="display:none;"><td class="right bold no-border" style="color:#045;">TCS @ 5% of Grand Total:</td>
         <td><input type="text" id="tcs5" class="right bold" readonly style="color:#046;"></td></tr>
-    <tr><td class="right bold no-border" style="color:#045;">Total with TCS:</td>
+    <tr id="tcsTotalLine" style="display:none;"><td class="right bold no-border" style="color:#045;">Total with TCS:</td>
         <td><input type="text" id="totalWithTcs" class="right bold" readonly style="color:#046;"></td></tr>
   </table>
 
@@ -216,10 +220,25 @@
   </template>
 </div>
 <script>
-// Prefill and all your prior code... (see previous messages).
-let cgstInp = document.getElementById('defCgst'), sgstInp = document.getElementById('defSgst');
-// ...mirror functions...
+// Prefill logic from localStorage etc... [unchanged if you already use it]
 
+// ------ Show/hide TCS fields ---------
+const tcsToggle = document.getElementById('tcsToggle');
+const tcsLine = document.getElementById('tcsLine');
+const tcsTotalLine = document.getElementById('tcsTotalLine');
+
+function showHideTcsLines() {
+  const show = tcsToggle.checked;
+  tcsLine.style.display = show ? '' : 'none';
+  tcsTotalLine.style.display = show ? '' : 'none';
+}
+tcsToggle.addEventListener('change', function() {
+  showHideTcsLines();
+  updateTotals();
+});
+// -------------------------------------
+
+// Totals (with TCS logic)
 function updateTotals() {
   let tb=document.getElementById('itemsTable').getElementsByTagName('tbody')[0],
       costOfTour=0, serviceCharges=0, base=0, cgst=0, sgst=0, igst=0;
@@ -231,21 +250,27 @@ function updateTotals() {
     base=serviceCharges; cgst=base*0.09; sgst=base*0.09; igst=0;
   } else{
     base=costOfTour+serviceCharges;
-    let r=+cgstInp.value||0, s=+sgstInp.value||0, i=+document.getElementById('defIgst').value||0;
+    let r=+document.getElementById('defCgst').value||0, s=+document.getElementById('defSgst').value||0, i=+document.getElementById('defIgst').value||0;
     cgst=base*r/100; sgst=base*s/100; igst=base*i/100;
   }
   const grandTotal = +(costOfTour+serviceCharges+cgst+sgst+igst);
-  const tcs = +(grandTotal*0.05);
-  const withTcs = grandTotal + tcs;
   document.getElementById('tourSubtotal').value=costOfTour.toFixed(2);
   document.getElementById('serviceSubtotal').value=serviceCharges.toFixed(2);
   document.getElementById('totalCGST').value = cgst.toFixed(2);
   document.getElementById('totalSGST').value = sgst.toFixed(2);
   document.getElementById('totalIGST').value = igst.toFixed(2);
   document.getElementById('grandTotal').value = grandTotal.toFixed(2);
-  document.getElementById('tcs5').value = tcs.toFixed(2);
-  document.getElementById('totalWithTcs').value = withTcs.toFixed(2);
-  setRatesToAllRows();
+  // TCS only if checked:
+  if (tcsToggle.checked) {
+    const tcs = +(grandTotal*0.05);
+    const withTcs = grandTotal + tcs;
+    document.getElementById('tcs5').value = tcs.toFixed(2);
+    document.getElementById('totalWithTcs').value = withTcs.toFixed(2);
+  } else {
+    document.getElementById('tcs5').value = '';
+    document.getElementById('totalWithTcs').value = '';
+  }
+  setRatesToAllRows && setRatesToAllRows();
 }
 
 // Expand ALL description rows automatically
@@ -257,7 +282,7 @@ function expandDescAllRows() {
   }
 }
 
-// Modified addRow: auto-expands every row on add
+// AddRow and NewInvoice: auto-expands every row on add
 function addRow(service, nIdx) {
   let t=document.getElementById('itemsTable').getElementsByTagName('tbody')[0];
   let row=t.insertRow(); let idx=nIdx?nIdx:t.rows.length;
@@ -296,19 +321,26 @@ function addRow(service, nIdx) {
     } updateTotals();
   }
   attachListeners(row);
-
   // Always open all description modals for edit
   setTimeout(expandDescAllRows, 150);
 }
 
+// Make sure to always expand all rows after loading a new invoice
+function newInvoice() {
+  setInvoiceNumber && setInvoiceNumber();
+  resetFields && resetFields();
+  prefillFromLocalStorageOrURL && prefillFromLocalStorageOrURL();
+  updateTotals();
+  setTimeout(expandDescAllRows, 150);
+}
 window.onload=function(){
-  setInvoiceNumber();
+  setInvoiceNumber && setInvoiceNumber();
   document.getElementById('invoiceDate').valueAsDate = new Date();
   addRow();
-  setEditability(true);
-  prefillFromLocalStorageOrURL();
+  setEditability && setEditability(true);
+  prefillFromLocalStorageOrURL && prefillFromLocalStorageOrURL();
   updateTotals();
-  // Always open existing row(s) modals on load as well
+  showHideTcsLines();
   setTimeout(expandDescAllRows, 200);
 };
 </script>
