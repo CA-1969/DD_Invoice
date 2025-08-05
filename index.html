@@ -13,9 +13,9 @@
     min-height:100vh;
   }
   .invoice-card {
-    max-width:1000px; margin:32px auto 0 auto; background: #fff;
+    max-width:1040px; margin:32px auto 0 auto; background: #fff;
     border-radius:var(--radius); box-shadow:0 4px 25px #a0aec03a, 0 1.5px 20px #dbeafead;
-    padding:37px 30px 35px 30px;
+    padding:37px 20px 35px 20px;
     border:1.3px solid #e5eaf3;
   }
   .firmhdr { text-align:center; font-family:'Poppins',sans-serif; font-size:32px; font-weight:700; color:#1e3362; letter-spacing:.7px; }
@@ -28,9 +28,14 @@
   }
   input:focus, textarea:focus, select:focus { border-color:#4683e6; background:#e7f1fd; }
   input[type="number"] { width:92px; text-align:right;}
+  .scroll-table-wrapper {
+    overflow-x:auto; width:100%;
+    margin-bottom: 19px;
+    background: #f5fafd; border-radius:8px;
+  }
   table {
-    width:100%; border-collapse: separate; border-spacing:0; margin-bottom: 22px;
-    border-radius: var(--radius); overflow: hidden; background: #f8fafd;
+    min-width:1260px; width:100%; border-collapse: separate; border-spacing:0;
+    border-radius: var(--radius); background: #f8fafd;
     box-shadow:0 1.5px 10px #c5d7f142;
   }
   th, td { border:1px solid #bac8da; padding:8px 10px; }
@@ -38,6 +43,7 @@
     background: linear-gradient(90deg,#e3ebfa 60%, #e8f1fb 100%); font-weight:700; color:#293855;
     border-top:2px solid #24384177;
     letter-spacing:.2px;
+    white-space:nowrap;
   }
   .right { text-align:right; }
   .center { text-align:center; }
@@ -55,6 +61,11 @@
   .act-amend   { background: #f59e42;}
   .act-cancel  { background: #d7454f;}
   .act-delete  { background: #6c6c6c;}
+  .linebtn {
+    padding: 3px 13px;
+    font-size:22px; font-weight:700; color:#346; background:#e9efff; border-radius:5px; border:none; cursor:pointer; margin:0 2px;
+  }
+  .linebtn:active { color:#0f4a8a;}
   .footerNote { font-size:14px; color:#666; text-align:center; padding-bottom:7px;}
   .gst-row {margin-top:2px; margin-bottom:18px; display:flex; gap:23px; justify-content:left;}
   .cancelled-invoice {
@@ -66,14 +77,17 @@
   #onlySCGSTToggle,#tcsToggle { accent-color:#3156c1; vertical-align:middle;}
   th:first-child, td:first-child { border-left-width:2px; border-radius:8px 0 0 8px; }
   th:last-child, td:last-child { border-right-width:2px; border-radius:0 8px 8px 0; }
+  tr .row-actions { min-width:66px; }
   th:nth-child(10), td:nth-child(10) { min-width:90px !important; }
-  @media (max-width:800px) {
-    .invoice-card { padding:15px 2vw;}
-    .actions-bar {justify-content:center; gap:10px;}
-    ul.gst-row, .gst-row, .firmhdr, .firminfo, .headerlabel {font-size:95%;}
+  @media (max-width:1200px) {
+    .scroll-table-wrapper {overflow-x:auto;}
+    table {min-width:1200px;}
+  }
+  @media (max-width:900px) {
+    .invoice-card { padding:7px 1vw;}
   }
   @media print {
-    .actions-bar, .desc-expander, .footerNote, .cancelled-invoice, .gst-row, #tcboxWrap, #retrievePrev { display:none !important; }
+    .actions-bar, .desc-expander, .footerNote, .cancelled-invoice, .gst-row, #tcboxWrap, #retrievePrev, .linebtn { display:none !important; }
     input, textarea { border:none !important; background:none !important;}
     th, td { font-size: 16px; }
     body { background:none; }
@@ -85,17 +99,16 @@
 <body>
 <div class="invoice-card">
   <div class="actions-bar">
-    <button class="actbtn act-add"    onclick="addRow()">Add</button>
+    <button class="actbtn act-add"    onclick="newInvoice()">Add</button>
     <button class="actbtn act-prev"   onclick="loadPreviousInvoice()">Previous</button>
     <button class="actbtn act-amend"  onclick="alert('Amend via DB soon')">Amend</button>
     <button class="actbtn act-cancel" onclick="cancelInvoice()">Cancel</button>
     <button class="actbtn act-delete" onclick="alert('Delete via DB soon')">Delete</button>
   </div>
-
   <div class="firmhdr">Dream Destination</div>
   <div class="firminfo">
     Shop no. 17, Krishna Complex, Court Road, Saharanpur 247001<br>
-    GSTIN: <b>09AGYPM6575C2</b> &nbsp; | &nbsp; State: Uttar Pradesh (09)<br>
+    GSTIN: <b>09AGYPM6575C2ZO</b> &nbsp; | &nbsp; State: Uttar Pradesh (09)<br>
     Email: info@dreamdestination.org
   </div>
   <div class="headerlabel">GST Tax Invoice</div>
@@ -104,9 +117,11 @@
     <label><b>Invoice No</b> <input type="text" id="invoiceNumber" readonly style="min-width:120px"></label>
     <label><b>Date</b> <input type="date" id="invoiceDate" style="min-width:140px"></label>
     <label><b>Tour ID</b> <input type="text" id="tourId" placeholder="(prefilled or from Payment)" style="min-width:108px"></label>
-    <span id="retrievePrev" style="margin-left:auto;"><button type="button"
-      style="padding:6px 18px; background:#4062e8;color:#fff;border-radius:5px;font-weight:500;cursor:pointer;"
-      onclick="showPreviousInvoice()">Show Previous Invoice</button></span>
+    <span id="retrievePrev" style="margin-left:auto;">
+      <button type="button"
+        style="padding:6px 18px; background:#4062e8;color:#fff;border-radius:5px;font-weight:500;cursor:pointer;"
+        onclick="showPreviousInvoice()">Show Previous Invoice</button>
+    </span>
   </div>
 
   <div style="margin-bottom:8px;">
@@ -120,6 +135,7 @@
   </div>
 
   <form id="invoiceForm" autocomplete="off">
+    <div class="scroll-table-wrapper">
     <table id="itemsTable">
       <thead>
         <tr>
@@ -138,6 +154,7 @@
       </thead>
       <tbody></tbody>
     </table>
+    </div>
   </form>
 
   <div id="tcboxWrap" style="margin-bottom:15px;display:flex;align-items:center;">
@@ -189,7 +206,6 @@
     GST Invoice for Dream Destination — GST logic as per checkbox.<br/>Print or Save as PDF with Ctrl+P.
   </div>
   <div id="cancelWatermark" class="cancelled-invoice" style="display:none">CANCELLED</div>
-
   <template id="descFormTmpl">
     <div class="descform">
       <div class="explabel">Advance: <input type="number" name="advance" step="0.01" min="0"></div>
@@ -220,25 +236,42 @@
   </template>
 </div>
 <script>
-// Prefill logic from localStorage etc... [unchanged if you already use it]
-
-// ------ Show/hide TCS fields ---------
-const tcsToggle = document.getElementById('tcsToggle');
-const tcsLine = document.getElementById('tcsLine');
-const tcsTotalLine = document.getElementById('tcsTotalLine');
-
-function showHideTcsLines() {
-  const show = tcsToggle.checked;
-  tcsLine.style.display = show ? '' : 'none';
-  tcsTotalLine.style.display = show ? '' : 'none';
+// Invoice/serial logic
+function currentFY() { let dt=new Date(),m=dt.getMonth()+1,yr=dt.getFullYear(); return (m>=4)?(yr.toString().slice(-2)+'-'+(yr+1).toString().slice(-2)):( (yr-1).toString().slice(-2)+'-'+yr.toString().slice(-2) ); }
+function getLastSerial() { return +(localStorage.getItem('dd_invoice_serial_'+currentFY())||0);}
+function nextSerial() { let last=getLastSerial()+1; return {serial:"DD/"+currentFY()+"/"+String(last).padStart(4,'0'), idx:last}; }
+function updateSerialInStorage(idx){ localStorage.setItem('dd_invoice_serial_'+currentFY(), idx);}
+function setInvoiceNumber(serialOverride) {
+  let info = serialOverride ? {serial:serialOverride, idx:parseInt(serialOverride.split('/').pop())||1 } : nextSerial();
+  document.getElementById('invoiceNumber').value = info.serial; updateSerialInStorage(info.idx); window._lastInvoiceNo = info.serial;
 }
-tcsToggle.addEventListener('change', function() {
-  showHideTcsLines();
-  updateTotals();
+function resetFields() {
+  document.getElementById('invoiceForm').reset(); document.getElementById('recipientName').value='';
+  document.getElementById('recipientAddress').value=''; document.getElementById('recipientGSTIN').value='';
+  document.getElementById('placeOfSupply').value="Uttar Pradesh, 09"; document.getElementById('deliveryAddress').value='';
+  document.getElementById('reverseCharge').checked=false; document.getElementById('signatureAttested').checked=false;
+  let tb=document.getElementById('itemsTable').getElementsByTagName('tbody')[0]; tb.innerHTML='';
+  addRow();
+  document.getElementById('invoiceDate').valueAsDate = new Date(); document.getElementById('cancelWatermark').style.display='none';
+  setEditability && setEditability(true);
+}
+function newInvoice() { setInvoiceNumber && setInvoiceNumber(); resetFields && resetFields(); updateTotals(); setTimeout(expandDescAllRows, 200);}
+function cancelInvoice() {document.getElementById('cancelWatermark').style.display='';setEditability && setEditability(false);}
+function loadPreviousInvoice(){ alert('Previous Invoice will load when DB integrated');}
+function setEditability(isEditable) {
+  let flds=document.querySelectorAll('#invoiceForm input, #invoiceForm textarea, #recipientName, #recipientAddress, #recipientGSTIN, #placeOfSupply, #deliveryAddress, #defCgst, #defSgst, #defIgst');
+  for(let f of flds){if(f.id==='invoiceNumber'||f.id==='invoiceDate') continue;f.readOnly = !isEditable;f.disabled=!isEditable;}
+  document.querySelectorAll('.row-actions button').forEach(but=>but.disabled = !isEditable);
+  document.querySelectorAll('.desc-expander').forEach(but=>but.disabled = !isEditable);
+}
+document.getElementById('tcsToggle').addEventListener('change', function() {
+  showHideTcsLines(); updateTotals();
 });
-// -------------------------------------
-
-// Totals (with TCS logic)
+function showHideTcsLines() {
+  const show = document.getElementById('tcsToggle').checked;
+  document.getElementById('tcsLine').style.display = show ? '' : 'none';
+  document.getElementById('tcsTotalLine').style.display = show ? '' : 'none';
+}
 function updateTotals() {
   let tb=document.getElementById('itemsTable').getElementsByTagName('tbody')[0],
       costOfTour=0, serviceCharges=0, base=0, cgst=0, sgst=0, igst=0;
@@ -260,8 +293,7 @@ function updateTotals() {
   document.getElementById('totalSGST').value = sgst.toFixed(2);
   document.getElementById('totalIGST').value = igst.toFixed(2);
   document.getElementById('grandTotal').value = grandTotal.toFixed(2);
-  // TCS only if checked:
-  if (tcsToggle.checked) {
+  if (document.getElementById('tcsToggle').checked) {
     const tcs = +(grandTotal*0.05);
     const withTcs = grandTotal + tcs;
     document.getElementById('tcs5').value = tcs.toFixed(2);
@@ -272,8 +304,6 @@ function updateTotals() {
   }
   setRatesToAllRows && setRatesToAllRows();
 }
-
-// Expand ALL description rows automatically
 function expandDescAllRows() {
   let rows = document.querySelectorAll('#itemsTable tbody tr');
   for (let row of rows) {
@@ -281,11 +311,10 @@ function expandDescAllRows() {
     if (btn) btn.click();
   }
 }
-
-// AddRow and NewInvoice: auto-expands every row on add
 function addRow(service, nIdx) {
-  let t=document.getElementById('itemsTable').getElementsByTagName('tbody')[0];
-  let row=t.insertRow(); let idx=nIdx?nIdx:t.rows.length;
+  let t=document.getElementById('itemsTable').getElementsByTagName('tbody')[0],
+      idx=nIdx!=null?nIdx:t.rows.length+1;
+  let row=t.insertRow(idx-1);
   let descShort=service&&service.descShort?service.descShort:'';
   row.innerHTML =
     `<td class="center">${idx}</td>
@@ -303,36 +332,63 @@ function addRow(service, nIdx) {
     <td><input type="number" name="cgst" value="${service?service.cgst||document.getElementById('defCgst').value:document.getElementById('defCgst').value}" class="right"></td>
     <td><input type="number" name="sgst" value="${service?service.sgst||document.getElementById('defSgst').value:document.getElementById('defSgst').value}" class="right"></td>
     <td><input type="number" name="igst" value="${service?service.igst||document.getElementById('defIgst').value:document.getElementById('defIgst').value}" class="right"></td>
-    <td class="row-actions">
-      <button type="button" onclick="deleteRow(this)">🗑</button>
+    <td class="row-actions center">
+      <button type="button" class="linebtn" title="+ Row" onclick="addRow()">&plus;</button>
+      <button type="button" class="linebtn" title="- Row" onclick="deleteRow(this)">&minus;</button>
     </td>`;
-  row.querySelector('[name="cgst"]').oninput = function(e){
-    if(!document.getElementById('onlySCGSTToggle').checked){
-      row.querySelector('[name="sgst"]').value = e.target.value; 
-      document.getElementById('defSgst').value = e.target.value;
-      document.getElementById('defCgst').value = e.target.value;
-    } updateTotals();
-  }
-  row.querySelector('[name="sgst"]').oninput = function(e){
-    if(!document.getElementById('onlySCGSTToggle').checked){
-      row.querySelector('[name="cgst"]').value = e.target.value;
-      document.getElementById('defSgst').value = e.target.value;
-      document.getElementById('defCgst').value = e.target.value;
-    } updateTotals();
-  }
   attachListeners(row);
-  // Always open all description modals for edit
-  setTimeout(expandDescAllRows, 150);
-}
-
-// Make sure to always expand all rows after loading a new invoice
-function newInvoice() {
-  setInvoiceNumber && setInvoiceNumber();
-  resetFields && resetFields();
-  prefillFromLocalStorageOrURL && prefillFromLocalStorageOrURL();
+  setTimeout(function() {row.querySelector('.desc-expander').click()},140);
   updateTotals();
-  setTimeout(expandDescAllRows, 150);
 }
+function deleteRow(btn){
+  let row=btn.closest('tr'),tb=row.parentNode;
+  if(tb.rows.length>1){ tb.removeChild(row); updateTotals();}
+}
+function attachListeners(row){
+  let ins=row.querySelectorAll('input[type="number"], input[type="text"]');
+  ins.forEach(inp=>inp.oninput=updateTotals);
+}
+function expandDesc(btn){
+  let td=btn.closest('td'),descArea=td.querySelector('.descDetail');
+  if(td.querySelector('.descform')) return;
+  const tmpl=document.getElementById('descFormTmpl').content.cloneNode(true);
+  let shortInp=td.querySelector('input[name="descShort"]');
+  let data=shortInp.dataset.fullDesc?JSON.parse(shortInp.dataset.fullDesc):{};
+  for(let k in data) if(tmpl.querySelector(`[name="${k}"]`)) tmpl.querySelector(`[name="${k}"]`).value = data[k];
+  descArea.innerHTML=''; descArea.appendChild(tmpl);
+}
+function saveDesc(btn){
+  let parent=btn.closest('.descform'), td=parent.closest('td');
+  let obj={}, tourTotal=0, serviceCharge=0;
+  ['advance','hotelLand','sightseeing','transfers','airFare','visa','others'].forEach(k=>{
+    let v = parent.querySelector(`input[name="${k}"]`); obj[k]=v?v.value:0;
+    tourTotal += Number(obj[k]||0);
+  });
+  let svc=parent.querySelector('input[name="serviceCharge"]');
+  serviceCharge=svc?Number(svc.value)||0:0; obj.serviceCharge=serviceCharge;
+  obj.narration = parent.querySelector('textarea[name="narration"]').value;
+  obj.from = parent.querySelector('input[name="from"]').value;
+  obj.to = parent.querySelector('input[name="to"]').value;
+  let summary=[];
+  if(obj.advance && +obj.advance) summary.push('Advance: ₹'+(+obj.advance).toLocaleString());
+  if(obj.hotelLand && +obj.hotelLand) summary.push('Hotel/Land: ₹'+(+obj.hotelLand).toLocaleString());
+  if(obj.sightseeing && +obj.sightseeing) summary.push('Sightseeing: ₹'+(+obj.sightseeing).toLocaleString());
+  if(obj.transfers && +obj.transfers) summary.push('Transfers: ₹'+(+obj.transfers).toLocaleString());
+  if(obj.airFare && +obj.airFare) summary.push('Air: '+(obj.from||'')+'-'+(obj.to||'')+' ₹'+(+obj.airFare).toLocaleString());
+  if(obj.visa && +obj.visa) summary.push('Visa: ₹'+(+obj.visa).toLocaleString());
+  if(obj.others && +obj.others) summary.push('Other: ₹'+(+obj.others).toLocaleString());
+  if(serviceCharge) summary.push('**Service Charges: ₹'+serviceCharge.toLocaleString()+"**");
+  if(obj.narration) summary.push('Note: '+obj.narration);
+  td.querySelector('input[name="descShort"]').value = summary.join(' | ');
+  td.querySelector('input[name="descShort"]').dataset.fullDesc = JSON.stringify(obj);
+  td.querySelector('.descDetail').innerHTML = '';
+  let tr = td.closest('tr');
+  tr.setAttribute('data-tourtotal',tourTotal||0);
+  tr.setAttribute('data-servicecharge',serviceCharge||0);
+  tr.querySelector('input[name="tvalue"]').value = (tourTotal+serviceCharge).toFixed(2);
+  updateTotals();
+}
+function cancelDesc(btn){ btn.closest('.descform').remove();}
 window.onload=function(){
   setInvoiceNumber && setInvoiceNumber();
   document.getElementById('invoiceDate').valueAsDate = new Date();
