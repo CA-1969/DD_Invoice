@@ -13,7 +13,7 @@
     min-height:100vh;
   }
   .invoice-card {
-    max-width:1040px; margin:32px auto 0 auto; background: #fff;
+    max-width:1060px; margin:32px auto 0 auto; background: #fff;
     border-radius:var(--radius); box-shadow:0 4px 25px #a0aec03a, 0 1.5px 20px #dbeafead;
     padding:37px 20px 35px 20px;
     border:1.3px solid #e5eaf3;
@@ -29,8 +29,9 @@
     transition:.13s;
   }
   input:focus, textarea:focus, select:focus { border-color:#4683e6; background:#e7f1fd; }
-  input[type="number"] { width:90px; text-align:right;}
-  .smallnum { width:88px !important; }
+  input[type="number"], .smallnum { max-width: 107px; width: 95px !important; text-align:right;}
+  .widerfield { min-width:170px !important; width:225px !important; }
+  .midfield { min-width:135px !important; width:160px !important; }
   .scroll-table-wrapper {
     overflow-x:auto; width:100%;
     margin-bottom: 19px;
@@ -51,7 +52,7 @@
   .right { text-align:right; }
   .center { text-align:center; }
   .actions-bar {
-    display: flex; flex-wrap:wrap; gap:18px; justify-content: flex-end;
+    display: flex; flex-wrap:wrap; gap:17px; justify-content: flex-start;
     margin-bottom:13px; margin-top:-18px; background: none;
     align-items:center;
   }
@@ -65,6 +66,7 @@
   .act-amend   { background: #f59e42;}
   .act-cancel  { background: #d7454f;}
   .act-delete  { background: #6c6c6c;}
+  .act-showinv { background: #3f5fff;}
   .linebtn {
     padding:2px 11px;
     font-size:20px; font-weight:700; color:#346; background:#e9efff; border-radius:5px; border:none; cursor:pointer; margin:0 2px;
@@ -84,6 +86,7 @@
   th:last-child, td:last-child { border-right-width:2px; border-radius:0 8px 8px 0; }
   tr .row-actions { min-width:56px;}
   th:nth-child(10), td:nth-child(10) { min-width:72px !important; }
+  .totals-table input[type="text"] { width:110px; min-width:80px; max-width:120px; }
   @media (max-width:1200px) {
     .scroll-table-wrapper {overflow-x:auto;}
     table {min-width:920px;}
@@ -92,7 +95,7 @@
     .invoice-card { padding:7px 1vw;}
   }
   @media print {
-    .actions-bar, .desc-expander, .footerNote, .cancelled-invoice, .gst-row, #tcboxWrap, #retrievePrev, .linebtn { display:none !important; }
+    .actions-bar, .desc-expander, .footerNote, .cancelled-invoice, .gst-row, #tcboxWrap, .linebtn, .act-showinv { display:none !important; }
     input, textarea { border:none !important; background:none !important;}
     th, td { font-size: 16px; }
     body { background:none; }
@@ -109,11 +112,7 @@
     <button class="actbtn act-amend"  onclick="alert('Amend via DB soon')">Amend</button>
     <button class="actbtn act-cancel" onclick="cancelInvoice()">Cancel</button>
     <button class="actbtn act-delete" onclick="alert('Delete via DB soon')">Delete</button>
-    <span id="retrievePrev" style="margin-left:18px;">
-      <button type="button"
-        style="padding:6px 16px; background:#4062e8;color:#fff;border-radius:5px;font-weight:500;cursor:pointer;"
-        onclick="showPreviousInvoice()">Show Previous Invoice</button>
-    </span>
+    <button class="actbtn act-showinv" onclick="showPreviousInvoice()">Show Previous Invoice</button>
   </div>
   <div class="firmhdr">Dream Destination</div>
   <div class="firminfo">
@@ -124,14 +123,14 @@
   <div class="headerlabel">GST Tax Invoice</div>
 
   <div style="display:flex; flex-wrap:wrap; gap:16px; align-items:center; margin-bottom:14px;">
-    <label><b>Invoice No</b> <input type="text" id="invoiceNumber" readonly class="smallnum"></label>
-    <label><b>Date</b> <input type="date" id="invoiceDate" style="min-width:120px"></label>
-    <label><b>Tour ID</b> <input type="text" id="tourId" placeholder="(prefilled or from Payment)" class="smallnum"></label>
+    <label><b>Invoice No</b> <input type="text" id="invoiceNumber" readonly class="midfield"></label>
+    <label><b>Date</b> <input type="date" id="invoiceDate" class="midfield"></label>
+    <label><b>Tour ID</b> <input type="text" id="tourId" placeholder="(prefilled or from Payment)" class="midfield"></label>
   </div>
 
   <div style="margin-bottom:8px;">
     <label><b>Bill To:</b> <input type="text" id="recipientName" placeholder="Name"></label>
-    <label><b>Address:</b> <input type="text" id="recipientAddress"></label>
+    <label><b>Address:</b> <input type="text" id="recipientAddress" class="widerfield"></label>
     <label><b>GSTIN/UIN:</b> <input type="text" id="recipientGSTIN"></label>
   </div>
   <div style="margin-bottom:16px;">
@@ -179,23 +178,23 @@
     <label><b>IGST%</b> <input type="number" id="defIgst" value="0" step="0.01" class="smallnum"></label>
   </div>
 
-  <table>
+  <table class="totals-table">
     <tr><td class="right no-border bold">Cost of Tour (A):</td>
-        <td><input type="text" id="tourSubtotal" class="right bold smallnum" readonly></td></tr>
+        <td><input type="text" id="tourSubtotal" class="right bold" readonly></td></tr>
     <tr><td class="right no-border bold">Service Charges (B):</td>
-        <td><input type="text" id="serviceSubtotal" class="right bold smallnum" readonly></td></tr>
+        <td><input type="text" id="serviceSubtotal" class="right bold" readonly></td></tr>
     <tr><td class="right no-border">CGST (as per GST logic):</td>
-        <td><input type="text" id="totalCGST" class="right smallnum" readonly></td></tr>
+        <td><input type="text" id="totalCGST" class="right" readonly></td></tr>
     <tr><td class="right no-border">SGST (as per GST logic):</td>
-        <td><input type="text" id="totalSGST" class="right smallnum" readonly></td></tr>
+        <td><input type="text" id="totalSGST" class="right" readonly></td></tr>
     <tr><td class="right no-border">IGST (as per GST logic):</td>
-        <td><input type="text" id="totalIGST" class="right smallnum" readonly></td></tr>
+        <td><input type="text" id="totalIGST" class="right" readonly></td></tr>
     <tr><td class="right bold no-border">Grand Total (A+B+GST):</td>
-        <td><input type="text" id="grandTotal" class="right bold smallnum" readonly></td></tr>
+        <td><input type="text" id="grandTotal" class="right bold" readonly></td></tr>
     <tr id="tcsLine" style="display:none;"><td class="right bold no-border" style="color:#045;">TCS @ 5% of Grand Total:</td>
-        <td><input type="text" id="tcs5" class="right bold smallnum" readonly style="color:#046;"></td></tr>
+        <td><input type="text" id="tcs5" class="right bold" readonly style="color:#046;"></td></tr>
     <tr id="tcsTotalLine" style="display:none;"><td class="right bold no-border" style="color:#045;">Total with TCS:</td>
-        <td><input type="text" id="totalWithTcs" class="right bold smallnum" readonly style="color:#046;"></td></tr>
+        <td><input type="text" id="totalWithTcs" class="right bold" readonly style="color:#046;"></td></tr>
   </table>
 
   <div style="margin-bottom:8px;">
